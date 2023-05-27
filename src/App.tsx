@@ -96,12 +96,15 @@ const App: React.FC = () => {
         });
       }
 
-      const response = await fetch(url.toString());
-      const data = await response.json();
-      if (data && data.items && Array.isArray(data.items)) {
-        setCars(data.items);
-      } else {
-        setCars([]);
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        if (data && Array.isArray(data.data.items)) {
+          setCars(data.data.items);
+        } else {
+          setCars([]);
+        }
       }
       setLoading(false);
     } catch (error) {
