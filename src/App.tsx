@@ -179,15 +179,26 @@ const App: React.FC = () => {
         ) : error ? (
             <p>Error: {error}</p>
         ) : (
-            <ul>
+            <ul style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
               {cars.map((car) => (
-                  <li key={car.car_id}>
-                    <h2>{car.car_model}</h2>
+                  <li
+                      key={car.car_id}
+                      style={{
+                        listStyle: 'none',
+                        border: '1px solid #ccc',
+                        borderRadius: '5px',
+                        padding: '20px',
+                        width: '300px',
+                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      }}
+                  >
+                    <h2 style={{ marginBottom: '10px' }}>{car.car_model}</h2>
                     <p>Price: {car.price}</p>
                     {/* Display other relevant car information */}
                   </li>
               ))}
             </ul>
+
         )}
       </div>
   );
