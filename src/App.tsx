@@ -1,170 +1,191 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, { useEffect, useState } from 'react';
 
-// ... (filterProducts, sortProducts, and generatePhotoUrl functions)
-
-type Product = {
-  deal_type: string;
-  make: string;
-  model: string;
-  category: string;
+interface Car {
+  car_id: number;
+  car_model: string;
   price: number;
-  period: string;
-  date: string;
-  mileage: number;
-  photo: string;
-  product_id: number;
-  photo_ver: string;
-};
+  // Add other properties of a car
+}
 
-type Filters = {
-  ForRent?: string;
-  Mans?: string;
-  Model?: string;
-  Cats?: string;
-  PriceFrom?: number;
-  PriceTo?: number;
-  Period?: string;
-};
+interface Category {
+  id: number;
+  name: string;
+}
 
-type SortOrder =
-    | 'decreasingDate'
-    | 'increasingDate'
-    | 'decreasingPrice'
-    | 'increasingPrice'
-    | 'decreasingMileage'
-    | 'increasingMileage';
+interface Manufacturer {
+  id: number;
+  name: string;
+}
 
-const filterProducts = (products: Product[], filters: Filters) => {
-  return products.filter((product : Product) => {
-    return (
-        (!filters.ForRent || product.deal_type === filters.ForRent) &&
-        (!filters.Mans || product.make === filters.Mans) &&
-        (!filters.Model || product.model === filters.Model) &&
-        (!filters.Cats || product.category === filters.Cats) &&
-        (!filters.PriceFrom || product.price >= filters.PriceFrom) &&
-        (!filters.PriceTo || product.price <= filters.PriceTo) &&
-        (!filters.Period || product.period === filters.Period)
-    );
-  });
-};
+interface Model {
+  id: number;
+  name: string;
+}
 
-// Sorting function
-const sortProducts = (sortOrder: SortOrder) => {
-  return products.sort((a, b) => {
-    switch (sortOrder) {
-      case 'decreasingDate':
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      case 'increasingDate':
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
-      case 'decreasingPrice':
-        return b.price - a.price;
-      case 'increasingPrice':
-        return a.price - b.price;
-      case 'decreasingMileage':
-        return b.mileage - a.mileage;
-      case 'increasingMileage':
-        return a.mileage - b.mileage;
-      default:
-        return 0;
-    }
-  });
-};
-
-
-// Generate photo URL
-const generatePhotoUrl = (product: Product) => {
-  return `https://static.my.ge/myauto/photos/${product.photo}/thumbs/${product.product_id}_1.jpg?v=${product.photo_ver}`;
-};
+interface SearchParams {
+  dealType?: number;
+  make?: string;
+  model?: string;
+  category?: string;
+  priceFrom?: number;
+  priceTo?: number;
+  period?: string;
+  sortOrder?: number;
+  page?: number;
+}
 
 const App: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [filters, setFilters] = useState<Filters>({});
-  const [sortOrder, setSortOrder] = useState<SortOrder>('decreasingDate');
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [cars, setCars] = useState<Car[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
+  const [models, setModels] = useState<Model[]>([]);
+  const [searchParams, setSearchParams] = useState<SearchParams>({});
 
   useEffect(() => {
-    async function fetchData() {
-      const response = await fetch('https://api2.myauto.ge/ka/products/');
-      const data = await response.json();
-      setProducts(data);
-    }
-    fetchData();
+    fetchCategories();
+    fetchManufacturers();
   }, []);
 
   useEffect(() => {
-    const filtered = filterProducts(filters);
-    const sorted = sortProducts(filtered, sortOrder);
-    setFilteredProducts(sorted);
-  }, [filters, sortOrder, products]);
+    fetchData(searchParams);
+  }, [searchParams]);
 
-  const handleFilterChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFilters({ ...filters, [name]: value });
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('https://api2.myauto.ge/ka/cats/get');
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      setError('Error occurred while fetching categories.');
+    }
   };
 
-  const handleSortChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSortOrder(event.target.value as SortOrder);
+  const fetchManufacturers = async () => {
+    try {
+      const response = await fetch('https://static.my.ge/myauto/js/mans.json');
+      const data = await response.json();
+      setManufacturers(data);
+    } catch (error) {
+      setError('Error occurred while fetching manufacturers.');
+    }
+  };
+
+  const fetchModels = async (manufacturerId: number) => {
+    try {
+      const response = await fetch(`https://api2.myauto.ge/ka/getManModels?man_id=${manufacturerId}`);
+      const data = await response.json();
+      setModels(data);
+    } catch (error) {
+      setError('Error occurred while fetching models.');
+    }
+  };
+
+  const fetchData = async (params?: SearchParams) => {
+    try {
+      setLoading(true);
+      const endpoint = 'https://api2.myauto.ge/ka/products/';
+      let url = new URL(endpoint);
+
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined) {
+            url.searchParams.append(key, value.toString());
+          }
+        });
+      }
+
+      const response = await fetch(url.toString());
+      const data = await response.json();
+      if (data && data.items && Array.isArray(data.items)) {
+        setCars(data.items);
+      } else {
+        setCars([]);
+      }
+      setLoading(false);
+    } catch (error) {
+      setError('Error occurred while fetching data.');
+      setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = event.target;
+    setSearchParams((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  const handleMakeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = event.target;
+    setSearchParams((prevState) => ({
+      ...prevState,
+      make: value,
+      model: undefined,
+    }));
+    if (value) {
+      const [manufacturerId] = value.split('.');
+      fetchModels(Number(manufacturerId));
+    } else {
+      setModels([]);
+    }
+  };
+
+  const handleModelChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = event.target;
+    setSearchParams((prevState) => ({ ...prevState, model: value }));
   };
 
   return (
       <div>
-        <h1>Product Search</h1>
+        <h1>Car Search</h1>
+        {/* Filter options */}
         <div>
-          <label htmlFor="ForRent">Deal Type:</label>
-          <input type="text" name="ForRent" onChange={handleFilterChange} />
-          <label htmlFor="Mans">Make:</label>
-          <input type="text" name="Mans" onChange={handleFilterChange} />
-          <label htmlFor="Model">Model:</label>
-          <input type="text" name="Model" onChange={handleFilterChange} />
-          <label htmlFor="Cats">Category:</label>
-          <input type="text" name="Cats" onChange={handleFilterChange} />
-          <label htmlFor="PriceFrom">Min Price:</label>
-          <input type="number" name="PriceFrom" onChange={handleFilterChange} />
-          <label htmlFor="PriceTo">Max Price:</label>
-          <input type="number" name="PriceTo" onChange={handleFilterChange} />
-          <label htmlFor="Period">Period:</label>
-          <input type="text" name="Period" onChange={handleFilterChange} />
-          <button onClick={() => setFilters(filters)}>Apply Filters</button>
-        </div>
-        <div>
-          <label htmlFor="sortOrder">Sort by:</label>
-          <select name="sortOrder" onChange={handleSortChange}>
-            <option value="decreasingDate">Date (Newest)</option>
-            <option value="increasingDate">Date (Oldest)</option>
-            <option value="decreasingPrice">Price (High to Low)</option>
-            <option value="increasingPrice">Price (Low to High)</option>
-            <option value="decreasingMileage">Mileage (High to Low)</option>
-            <option value="increasingMileage">Mileage (Low to High)</option>
+          <label>Deal Type:</label>
+          <select name="dealType" onChange={handleFilterChange}>
+            <option value="">All</option>
+            <option value="0">For Rent</option>
+            <option value="1">For Sale</option>
           </select>
+
+          <label>Make:</label>
+          <select name="make" onChange={handleMakeChange}>
+            <option value="">All</option>
+            {manufacturers.map((manufacturer) => (
+                <option key={manufacturer.id} value={`${manufacturer.id}`}>
+                  {manufacturer.name}
+                </option>
+            ))}
+          </select>
+
+          <label>Model:</label>
+          <select name="model" onChange={handleModelChange}>
+            <option value="">All</option>
+            {models.map((model) => (
+                <option key={model.id} value={`${searchParams.make}.${model.id}`}>
+                  {model.name}
+                </option>
+            ))}
+          </select>
+
+          {/* Add other filter options based on the provided search parameters */}
         </div>
-        <table>
-          <thead>
-          <tr>
-            <th>Photo</th>
-            <th>Make</th>
-            <th>Model</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>Date</th>
-            <th>Mileage</th>
-          </tr>
-          </thead>
-          <tbody>
-          {filteredProducts.map((product) => (
-              <tr key={product.product_id}>
-                <td>
-                  <img src={generatePhotoUrl(product)} alt="Product" />
-                </td>
-                <td>{product.make}</td>
-                <td>{product.model}</td>
-                <td>{product.category}</td>
-                <td>{product.price}</td>
-                <td>{product.date}</td>
-                <td>{product.mileage}</td>
-              </tr>
-          ))}
-          </tbody>
-        </table>
+
+        {/* Car list */}
+        {loading ? (
+            <p>Loading...</p>
+        ) : error ? (
+            <p>Error: {error}</p>
+        ) : (
+            <ul>
+              {cars.map((car) => (
+                  <li key={car.car_id}>
+                    <h2>{car.car_model}</h2>
+                    <p>Price: {car.price}</p>
+                    {/* Display other relevant car information */}
+                  </li>
+              ))}
+            </ul>
+        )}
       </div>
   );
 };
