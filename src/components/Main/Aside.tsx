@@ -100,19 +100,23 @@ export default function Aside(props: { sort: any; setSort: any; data: any; setDa
             const isCategoryMatch = sort['category'] === null || item.category_id === Number(sort['category']);
 
             // Filter based on price_from and price_to
-            if (sort['price_from'] !== null && sort['price_to'] !== null) {
+            if (sort['price_from'] === "" && sort['price_to'] === "") {
+                return isDealTypeMatch && isManufacturerMatch && isCategoryMatch;
+            }
+
+            if (sort['price_from'] !== null && sort['price_to'] !== null && sort['price_from'] !== "" && sort['price_to'] !== "") {
                 const isPriceRangeMatch = item.price_value >= Number(sort['price_from']) && item.price_value <= Number(sort['price_to']);
                 return isDealTypeMatch && isManufacturerMatch && isCategoryMatch && isPriceRangeMatch;
             }
 
             // Filter based on price_from only
-            if (sort['price_from'] !== null) {
+            if (sort['price_from'] !== null && sort['price_from'] !== "") {
                 const isPriceFromMatch = item.price_value >= Number(sort['price_from']);
                 return isDealTypeMatch && isManufacturerMatch && isCategoryMatch && isPriceFromMatch;
             }
 
             // Filter based on price_to only
-            if (sort['price_to'] !== null) {
+            if (sort['price_to'] !== null && sort['price_to'] !== "") {
                 const isPriceToMatch = item.price_value <= Number(sort['price_to']);
                 return isDealTypeMatch && isManufacturerMatch && isCategoryMatch && isPriceToMatch;
             }
@@ -173,6 +177,7 @@ return (
                         <p>ფასი</p>
                         <div className='price-div'>
                             <input
+                                id="from"
                                 type="number"
                                 placeholder="From"
                                 name="price_from"
@@ -181,6 +186,7 @@ return (
                             />
                             -
                             <input
+                                id="to"
                                 type="number"
                                 placeholder="To"
                                 name="price_to"
