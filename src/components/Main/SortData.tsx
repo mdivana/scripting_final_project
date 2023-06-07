@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
-// import '../../styles.css'
+import React, { useState, useEffect, ChangeEvent } from 'react';
 
-export default function SortData(props: { data: any[]; setData: React.Dispatch<React.SetStateAction<any[]>>; }) {
-  const { data, setData } = props;
+interface SortDataProps {
+  data: any[];
+  setData: React.Dispatch<React.SetStateAction<any[]>>;
+}
+
+const SortData: React.FC<SortDataProps> = ({ data, setData }) => {
   const [val, setVal] = useState<string | null>(null);
 
-  function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
+  useEffect(() => {
+    handleSort(val); // Reapply the sorting whenever the data changes
+  }, [data]);
+
+  const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const { value } = event.target;
     setVal(value);
     handleSort(value);
-  }
+  };
 
-  function handleSort(value: string) {
+  const handleSort = (value: string | null) => {
     switch (value) {
       case '1':
         sortByDecreaseDate();
@@ -32,44 +39,43 @@ export default function SortData(props: { data: any[]; setData: React.Dispatch<R
         sortByIncreaseMilage();
         break;
       default:
+        break;
     }
-  }
+  };
 
-  function sortByDecreaseDate() {
-    console.log('sortByDecreaseDate');
-    const sortedData = [...data].sort((a, b) => (new Date(b.order_date) as any) - (new Date(a.order_date) as any));
+  const sortByDecreaseDate = () => {
+    const sortedData = [...data].sort(
+      (a, b) => (new Date(b.order_date) as any) - (new Date(a.order_date) as any)
+    );
     setData(sortedData);
-  }
+  };
 
-  function sortByIncreaseDate() {
-    console.log('sortByIncreaseDate');
-    const sortedData = [...data].sort((a, b) => (new Date(a.order_date) as any) - (new Date(b.order_date) as any));
+  const sortByIncreaseDate = () => {
+    const sortedData = [...data].sort(
+      (a, b) => (new Date(a.order_date) as any) - (new Date(b.order_date) as any)
+    );
     setData(sortedData);
-  }
+  };
 
-  function sortByDecreasePrice() {
-    console.log('sortByDecreasePrice');
+  const sortByDecreasePrice = () => {
     const sortedData = [...data].sort((a, b) => (b.price_usd as any) - (a.price_usd as any));
     setData(sortedData);
-  }
+  };
 
-  function sortByIncreasePrice() {
-    console.log('sortByIncreasePrice');
+  const sortByIncreasePrice = () => {
     const sortedData = [...data].sort((a, b) => (a.price_usd as any) - (b.price_usd as any));
     setData(sortedData);
-  }
+  };
 
-  function sortByDecreaseMilage() {
-    console.log('sortByDecreaseMilage');
+  const sortByDecreaseMilage = () => {
     const sortedData = [...data].sort((a, b) => (b.car_run_km as any) - (a.car_run_km as any));
     setData(sortedData);
-  }
+  };
 
-  function sortByIncreaseMilage() {
-    console.log('sortByIncreaseMilage');
+  const sortByIncreaseMilage = () => {
     const sortedData = [...data].sort((a, b) => (a.car_run_km as any) - (b.car_run_km as any));
     setData(sortedData);
-  }
+  };
 
   return (
     <div className='sort-data'>
@@ -85,4 +91,6 @@ export default function SortData(props: { data: any[]; setData: React.Dispatch<R
       </select>
     </div>
   );
-}
+};
+
+export default SortData;
