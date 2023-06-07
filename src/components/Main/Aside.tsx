@@ -10,31 +10,31 @@ export default function Aside(props: { sort: any; setSort: any; data: any; setDa
   const [initialData, setInitialData] = useState<any[]>([]);
 
     useEffect(() => {
-        fetch('https://api2.myauto.ge/ka/products/')
-            .then((res) => res.json())
-            .then((data) => {
-                setInitialData(data.data.items);
+    fetch('https://api2.myauto.ge/ka/products/')
+        .then((res) => res.json())
+        .then((data) => {
+            setInitialData(data.data.items);
 
-                fetch('https://static.my.ge/myauto/js/mans.json')
-                    .then((res) => res.json())
-                    .then((brands) => {
-                        console.log(initialData)
-                        setInitialData((prevInitData) =>
-                            prevInitData.map((item) => {
-                                const foundBrand = brands.find((obj: { man_id: string; }) => obj.man_id === String(item.man_id));
-                                return { ...item, brand_name: foundBrand.man_name };
-                            })
-                        );
-                        console.log(initialData)
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    });
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }, []);
+            fetch('https://static.my.ge/myauto/js/mans.json')
+                .then((res) => res.json())
+                .then((brands) => {
+                    setInitialData((prevInitData) =>
+                        prevInitData.map((item) => {
+                            const foundBrand = brands.find((obj: { man_id: string; }) => obj.man_id === String(item.man_id));
+                            const brandName = foundBrand ? foundBrand.man_name : null;
+                            return { ...item, brand_name: brandName };
+                        })
+                    );
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+}, []);
+
 
   useEffect(() => {
     fetch('https://api2.myauto.ge/ka/cats/get')
@@ -55,7 +55,7 @@ export default function Aside(props: { sort: any; setSort: any; data: any; setDa
       .then(res => res.json())
       .then((data) => {
         data.map((item: { is_car: string; is_spec: string; is_moto: string; man_name: string; }) => {
-          if ('1' === getMnufacterersList(type, item)) {
+          if ('1' === getManufacturersList(type, item)) {
             setManufacturer(prevMan => {
               return ([...prevMan, item.man_name]);
             });
@@ -64,7 +64,7 @@ export default function Aside(props: { sort: any; setSort: any; data: any; setDa
       });
   }, [type]);
 
-  function getMnufacterersList(id: number, item: { is_car: string; is_spec: string; is_moto: string; }): string {
+  function getManufacturersList(id: number, item: { is_car: string; is_spec: string; is_moto: string; }): string {
     const s: { [key: number]: string } = {
       0: item.is_car,
       1: item.is_spec,
@@ -77,7 +77,7 @@ export default function Aside(props: { sort: any; setSort: any; data: any; setDa
     return <option key={index} value={item.id}>{item.name}</option>;
   });
 
-  const manufacterersList = manufacturer.map((item, index) => {
+  const manufacturersList = manufacturer.map((item, index) => {
     return <option key={index} value={item}>{item}</option>;
   });
 
@@ -154,7 +154,7 @@ return (
                                 onChange={handleChange}
                             >
                                 <option value='manufacturer'>მწარმოებელი</option>
-                                {manufacterersList}
+                                {manufacturersList}
                             </select>
                         </div>
 
