@@ -8,16 +8,17 @@ import NotFound from './NotFound';
 export default function Main() {
     const [data, setData] = useState([]);
     const [sort, setSort] = useState({
-        'deal_type': null,
-        'manufacturer': null,
-        'category': null,
-        'price_from': null,
-        'price_to': null
+        'ForRent': "",
+        'Mans': "",
+        'Cats': "",
+        'PriceFrom': "",
+        'PriceTo': "",
+        'SortOrder': 1,
     });
 
 
     useEffect(() => {
-        fetch('https://api2.myauto.ge/ka/products/')
+        fetch(`https://api2.myauto.ge/ka/products?TypeID=0&ForRent=&Mans=&CurrencyID=3&MileageType=1&SortOrder=1&Page=1`)
             .then(res => res.json())
             .then((data) => setData(data.data.items))
             .catch((error) => {
@@ -42,9 +43,7 @@ export default function Main() {
                         <CarList
                             data={data}
                             setData={setData}
-                        />
-                    )}
-
+                        />)}
                 </div>
             </div>
         </div>

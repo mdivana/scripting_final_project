@@ -1,40 +1,11 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent, SetStateAction } from 'react';
+import React, { useState, useEffect } from 'react';
 import SearchType from './SearchType';
-
 
 export default function Aside(props: { sort: any; setSort: any; data: any; setData: any; }) {
   const { sort, setSort, data, setData } = props;
   const [type, setType] = useState<number>(0);
   const [categories, setCategories] = useState<any[]>([]);
   const [manufacturer, setManufacturer] = useState<any[]>([]);
-  const [initialData, setInitialData] = useState<any[]>([]);
-
-    useEffect(() => {
-    fetch('https://api2.myauto.ge/ka/products/')
-        .then((res) => res.json())
-        .then((data) => {
-            setInitialData(data.data.items);
-
-            fetch('https://static.my.ge/myauto/js/mans.json')
-                .then((res) => res.json())
-                .then((brands) => {
-                    setInitialData((prevInitData) =>
-                        prevInitData.map((item) => {
-                            const foundBrand = brands.find((obj: { man_id: string; }) => obj.man_id === String(item.man_id));
-                            const brandName = foundBrand ? foundBrand.man_name : null;
-                            return { ...item, brand_name: brandName };
-                        })
-                    );
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-}, []);
-
 
   useEffect(() => {
     fetch('https://api2.myauto.ge/ka/cats/get')
@@ -54,10 +25,10 @@ export default function Aside(props: { sort: any; setSort: any; data: any; setDa
     fetch('https://static.my.ge/myauto/js/mans.json')
       .then(res => res.json())
       .then((data) => {
-        data.map((item: { is_car: string; is_spec: string; is_moto: string; man_name: string; }) => {
+        data.map((item: { is_car: string; is_spec: string; is_moto: string; man_name: string; man_id: string}) => {
           if ('1' === getManufacturersList(type, item)) {
             setManufacturer(prevMan => {
-              return ([...prevMan, item.man_name]);
+              return ([...prevMan, { name: item.man_name, id: item.man_id}]);
             });
           }
         });
@@ -78,53 +49,30 @@ export default function Aside(props: { sort: any; setSort: any; data: any; setDa
   });
 
   const manufacturersList = manufacturer.map((item, index) => {
-    return <option key={index} value={item}>{item}</option>;
+    return <option key={index} value={item.id}>{item.name}</option>;
   });
 
     function handleChange(event: { target: { name: any; value: any; }; }) {
         const { name, value } = event.target;
-        const arr = ['deal_type', 'manufacturer', 'category', 'price_from', 'price_to']
+        const arr = ['ForRent', 'Mans', 'Cats', 'PriceFrom', 'PriceTo']
 
         setSort((prevSort: any) => ({
             ...prevSort,
             [name]: arr.includes(value) ? null : value
         }));
+        console.log()
     }
 
 
     function handleSubmit(event: { preventDefault: () => void; }) {
         event.preventDefault()
-        const updatedData = initialData.filter((item) => {
-            const isDealTypeMatch = sort['deal_type'] === null || String(item.for_rent) === sort['deal_type'];
-            const isManufacturerMatch = sort['manufacturer'] === null || item.brand_name === sort['manufacturer'];
-            const isCategoryMatch = sort['category'] === null || item.category_id === Number(sort['category']);
-
-            // Filter based on price_from and price_to
-            if (sort['price_from'] === "" && sort['price_to'] === "") {
-                return isDealTypeMatch && isManufacturerMatch && isCategoryMatch;
-            }
-
-            if (sort['price_from'] !== null && sort['price_to'] !== null && sort['price_from'] !== "" && sort['price_to'] !== "") {
-                const isPriceRangeMatch = item.price_value >= Number(sort['price_from']) && item.price_value <= Number(sort['price_to']);
-                return isDealTypeMatch && isManufacturerMatch && isCategoryMatch && isPriceRangeMatch;
-            }
-
-            // Filter based on price_from only
-            if (sort['price_from'] !== null && sort['price_from'] !== "") {
-                const isPriceFromMatch = item.price_value >= Number(sort['price_from']);
-                return isDealTypeMatch && isManufacturerMatch && isCategoryMatch && isPriceFromMatch;
-            }
-
-            // Filter based on price_to only
-            if (sort['price_to'] !== null && sort['price_to'] !== "") {
-                const isPriceToMatch = item.price_value <= Number(sort['price_to']);
-                return isDealTypeMatch && isManufacturerMatch && isCategoryMatch && isPriceToMatch;
-            }
-
-            // No price filtering, return true to include the item
-            return isDealTypeMatch && isManufacturerMatch && isCategoryMatch;
-        });
-        setData(updatedData)
+        console.log(sort['Mans'])
+            fetch(`https://api2.myauto.ge/ka/products?TypeID=0&ForRent=${sort['ForRent']}&Mans=${sort['Mans']}&Cats=${sort['Cats']}&PriceFrom=${sort['PriceFrom']}&PriceTo=${sort['PriceTo']}&SortOrder=&CurrencyID=3&MileageType=1&SortOrder=${sort['SortOrder']}&Page=1`)
+                .then(res => res.json())
+                .then((data) => setData(data.data.items))
+                .catch((error) => {
+                    console.error(error)
+                })
     }
 
 return (
@@ -137,12 +85,12 @@ return (
                             <p>გარიგების ტიპი</p>
                             <select
                                 className='select'
-                                name='deal_type'
+                                name='ForRent'
                                 onChange={handleChange}
                             >
-                                <option value='deal_type'>გარიგების ტიპი</option>
-                                <option value='false'>იყიდება</option>
-                                <option value='true'>ქირავდება</option>
+                                <option value='ForRent'>გარიგების ტიპი</option>
+                                <option value='0'>იყიდება</option>
+                                <option value='1'>ქირავდება</option>
                             </select>
                         </div>
 
@@ -150,10 +98,10 @@ return (
                             <p>მწარმოებელი</p>
                             <select
                                 className='select'
-                                name='manufacturer'
+                                name='Mans'
                                 onChange={handleChange}
                             >
-                                <option value='manufacturer'>მწარმოებელი</option>
+                                <option value='Mans'>მწარმოებელი</option>
                                 {manufacturersList}
                             </select>
                         </div>
@@ -162,10 +110,10 @@ return (
                             <p>კატეგორია</p>
                             <select
                                 className='select'
-                                name='category'
+                                name='Cats'
                                 onChange={handleChange}
                             >
-                                <option value='category'>კატეგორია</option>
+                                <option value='Cats'>კატეგორია</option>
                                 {categoriesList}
                             </select>
                         </div>
@@ -180,7 +128,7 @@ return (
                                 id="from"
                                 type="number"
                                 placeholder="From"
-                                name="price_from"
+                                name="PriceFrom"
                                 min='0'
                                 onChange={handleChange}
                             />
@@ -189,8 +137,8 @@ return (
                                 id="to"
                                 type="number"
                                 placeholder="To"
-                                name="price_to"
-                                min={sort['price_from']}
+                                name="PriceTo"
+                                min='1'
                                 onChange={handleChange}
                             />
                         </div>
@@ -202,6 +150,5 @@ return (
                 </div>
             </form>
         </div>
-
     );
 }

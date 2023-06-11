@@ -5,7 +5,7 @@ import ReactPaginate from 'react-paginate';
 // import '../../styles.css'
 
 
-export default function CarList(props: { data: any; setData: any }) {
+export default function CarList(props: {data: any; setData: any }) {
     const [currentPage, setCurrentPage] = useState(0);
     const itemsPerPage = 5;
     const { data, setData } = props
@@ -31,21 +31,20 @@ export default function CarList(props: { data: any; setData: any }) {
 
 
     return (
-    <div className="car-list">
-        <SortData data={data} setData={setData} />
-        {cardElements}
-        <ReactPaginate
-              previousLabel={'Previous'}
-              nextLabel={'Next'}
-              breakLabel={'...'}
-              pageCount={Math.ceil(data.length / itemsPerPage)}
-              marginPagesDisplayed={2}
-              pageRangeDisplayed={5}
-              onPageChange={handlePageChange}
-              containerClassName={'pagination-container'}
-              activeClassName={'active'}
-        />
-    </div>
-);
-
+        <div className="car-list">
+            <SortData data={data} setData={setData} />
+            {cardElements}
+            <ReactPaginate
+                previousLabel={'Previous'}
+                nextLabel={'Next'}
+                breakLabel={'...'}
+                pageCount={Math.ceil(data.length / itemsPerPage)}
+                marginPagesDisplayed={2}
+                pageRangeDisplayed={5}
+                onPageChange={handlePageChange}
+                containerClassName={'pagination-container'}
+                activeClassName={'active'}
+            />
+        </div>
+    );
 }
