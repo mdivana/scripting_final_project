@@ -7,6 +7,14 @@ export default function Aside(props: { sort: any; setSort: any; data: any; setDa
   const [categories, setCategories] = useState<any[]>([]);
   const [manufacturer, setManufacturer] = useState<any[]>([]);
 
+  useEffect(()=>{
+      fetch(`https://api2.myauto.ge/ka/products?TypeID=0&ForRent=${sort['ForRent']}&Mans=${sort['Mans']}&Cats=${sort['Cats']}&PriceFrom=${sort['PriceFrom']}&PriceTo=${sort['PriceTo']}&SortOrder=&CurrencyID=3&MileageType=1&Period=${sort['period']}&SortOrder=${sort['SortOrder']}&Page=${sort['page']}`)
+          .then(res => res.json())
+          .then((data) => setData(data.data.items))
+          .catch((error) => {
+              console.error(error)
+          })
+  },[sort['SortOrder'],sort['period']])
   useEffect(() => {
     fetch('https://api2.myauto.ge/ka/cats/get')
       .then(res => res.json())
@@ -67,7 +75,7 @@ export default function Aside(props: { sort: any; setSort: any; data: any; setDa
     function handleSubmit(event: { preventDefault: () => void; }) {
         event.preventDefault()
         console.log(sort['Mans'])
-            fetch(`https://api2.myauto.ge/ka/products?TypeID=0&ForRent=${sort['ForRent']}&Mans=${sort['Mans']}&Cats=${sort['Cats']}&PriceFrom=${sort['PriceFrom']}&PriceTo=${sort['PriceTo']}&SortOrder=&CurrencyID=3&MileageType=1&SortOrder=${sort['SortOrder']}&Page=1`)
+            fetch(`https://api2.myauto.ge/ka/products?TypeID=0&ForRent=${sort['ForRent']}&Mans=${sort['Mans']}&Cats=${sort['Cats']}&PriceFrom=${sort['PriceFrom']}&PriceTo=${sort['PriceTo']}&SortOrder=&CurrencyID=3&MileageType=1&Period=${sort['period']}&SortOrder=${sort['SortOrder']}&Page=${sort['page']}`)
                 .then(res => res.json())
                 .then((data) => setData(data.data.items))
                 .catch((error) => {

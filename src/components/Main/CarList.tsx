@@ -5,10 +5,10 @@ import ReactPaginate from 'react-paginate';
 // import '../../styles.css'
 
 
-export default function CarList(props: {data: any; setData: any }) {
-    const [currentPage, setCurrentPage] = useState(0);
+export default function CarList(props: {data: any; setData: any ,sort: any; setSort: any, currentPage: any,setCurrentPage: any}) {
+
     const itemsPerPage = 5;
-    const { data, setData } = props
+    const { data, setData, sort, setSort ,currentPage ,setCurrentPage} = props
     const [price, setPrice] = useState(true)  // true - ₾ | else - $
     const handlePageChange = (selectedPage: { selected: number }) => {
         setCurrentPage(selectedPage.selected);
@@ -18,6 +18,8 @@ export default function CarList(props: {data: any; setData: any }) {
     const cardElements = data
         .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
         .map((item: { car_id: number }) => {
+            console.log(data)
+            console.log(item)
             return (
             <Card
                 key={item.car_id}
@@ -32,7 +34,7 @@ export default function CarList(props: {data: any; setData: any }) {
 
     return (
         <div className="car-list">
-            <SortData data={data} setData={setData} />
+            <SortData data={data} setData={setData} sort={sort} setSort={setSort}/>
             {cardElements}
             <ReactPaginate
                 previousLabel={'Previous'}
