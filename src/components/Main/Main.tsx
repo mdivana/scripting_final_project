@@ -16,18 +16,20 @@ export default function Main() {
         'PriceTo': "",
         'SortOrder': 1,
         'period': '',
-        'page': currentPage
     });
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
 
     useEffect(() => {
-        fetch(`https://api2.myauto.ge/ka/products?TypeID=0&ForRent=&Mans=&CurrencyID=3&MileageType=1&SortOrder=1&Page=1`)
+        fetch(`https://api2.myauto.ge/ka/products?TypeID=0&ForRent=&Mans=&CurrencyID=3&MileageType=1&SortOrder=1&Page=${currentPage}`)
             .then(res => res.json())
             .then((data) => setData(data.data.items))
             .catch((error) => {
                 console.error(error)
             })
         console.log(data)
-    }, [])
+    }, [currentPage])
 
 
     return (
@@ -39,6 +41,7 @@ export default function Main() {
                         setSort={setSort}
                         data={data}
                         setData={setData}
+                        currentPage={currentPage}
                     />
                     {data.length === 0 ? (
                         <NotFound />

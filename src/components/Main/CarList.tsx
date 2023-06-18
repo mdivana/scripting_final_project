@@ -1,22 +1,18 @@
 import React, {useState} from 'react'
 import Card from '../Card/Card'
 import SortData from './SortData'
-import ReactPaginate from 'react-paginate';
 // import '../../styles.css'
 
 
 export default function CarList(props: {data: any; setData: any ,sort: any; setSort: any, currentPage: any,setCurrentPage: any}) {
 
-    const itemsPerPage = 5;
     const { data, setData, sort, setSort ,currentPage ,setCurrentPage} = props
     const [price, setPrice] = useState(true)  // true - ₾ | else - $
-    const handlePageChange = (selectedPage: { selected: number }) => {
-        setCurrentPage(selectedPage.selected);
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
     };
 
-
     const cardElements = data
-        .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
         .map((item: { car_id: number }) => {
             console.log(data)
             console.log(item)
@@ -36,17 +32,14 @@ export default function CarList(props: {data: any; setData: any ,sort: any; setS
         <div className="car-list">
             <SortData data={data} setData={setData} sort={sort} setSort={setSort}/>
             {cardElements}
-            <ReactPaginate
-                previousLabel={'Previous'}
-                nextLabel={'Next'}
-                breakLabel={'...'}
-                pageCount={Math.ceil(data.length / itemsPerPage)}
-                marginPagesDisplayed={2}
-                pageRangeDisplayed={5}
-                onPageChange={handlePageChange}
-                containerClassName={'pagination-container'}
-                activeClassName={'active'}
-            />
+            <div className="pagination">
+                <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+                    Previous
+                </button>
+                <button onClick={() => handlePageChange(currentPage + 1)}>
+                    Next
+                </button>
+            </div>
         </div>
     );
 }

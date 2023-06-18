@@ -4,20 +4,20 @@ import carImgUrl from "../../assets/images/car.svg";
 import tractorImgUrl from "../../assets/images/tractor.svg";
 import motoImgUrl from "../../assets/images/moto.svg";
 
-export default function Aside(props: { sort: any; setSort: any; data: any; setData: any; }) {
-  const { sort, setSort, data, setData } = props;
+export default function Aside(props: { sort: any; setSort: any; data: any; setData: any; currentPage: any }) {
+  const { sort, setSort, data, setData, currentPage } = props;
   const [type, setType] = useState<number>(0);
   const [categories, setCategories] = useState<any[]>([]);
   const [manufacturer, setManufacturer] = useState<any[]>([]);
 
   useEffect(()=>{
-      fetch(`https://api2.myauto.ge/ka/products?TypeID=0&ForRent=${sort['ForRent']}&Mans=${sort['Mans']}&Cats=${sort['Cats']}&PriceFrom=${sort['PriceFrom']}&PriceTo=${sort['PriceTo']}&SortOrder=&CurrencyID=3&MileageType=1&Period=${sort['period']}&SortOrder=${sort['SortOrder']}&Page=${sort['page']}`)
+      fetch(`https://api2.myauto.ge/ka/products?TypeID=0&ForRent=${sort['ForRent']}&Mans=${sort['Mans']}&Cats=${sort['Cats']}&PriceFrom=${sort['PriceFrom']}&PriceTo=${sort['PriceTo']}&SortOrder=&CurrencyID=3&MileageType=1&Period=${sort['period']}&SortOrder=${sort['SortOrder']}&Page=${currentPage}`)
           .then(res => res.json())
           .then((data) => setData(data.data.items))
           .catch((error) => {
               console.error(error)
           })
-  },[sort['SortOrder'],sort['period']])
+  },[sort['SortOrder'],sort['period'],currentPage])
   useEffect(() => {
     fetch('https://api2.myauto.ge/ka/cats/get')
       .then(res => res.json())
@@ -78,7 +78,7 @@ export default function Aside(props: { sort: any; setSort: any; data: any; setDa
     function handleSubmit(event: { preventDefault: () => void; }) {
         event.preventDefault()
         console.log(sort['Mans'])
-            fetch(`https://api2.myauto.ge/ka/products?TypeID=0&ForRent=${sort['ForRent']}&Mans=${sort['Mans']}&Cats=${sort['Cats']}&PriceFrom=${sort['PriceFrom']}&PriceTo=${sort['PriceTo']}&SortOrder=&CurrencyID=3&MileageType=1&Period=${sort['period']}&SortOrder=${sort['SortOrder']}&Page=${sort['page']}`)
+            fetch(`https://api2.myauto.ge/ka/products?TypeID=0&ForRent=${sort['ForRent']}&Mans=${sort['Mans']}&Cats=${sort['Cats']}&PriceFrom=${sort['PriceFrom']}&PriceTo=${sort['PriceTo']}&SortOrder=&CurrencyID=3&MileageType=1&Period=${sort['period']}&SortOrder=${sort['SortOrder']}&Page=${currentPage}`)
                 .then(res => res.json())
                 .then((data) => setData(data.data.items))
                 .catch((error) => {
