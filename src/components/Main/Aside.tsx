@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import SearchType from './SearchType';
+import carImgUrl from "../../assets/images/car.svg";
+import tractorImgUrl from "../../assets/images/tractor.svg";
+import motoImgUrl from "../../assets/images/moto.svg";
 
 export default function Aside(props: { sort: any; setSort: any; data: any; setData: any; }) {
   const { sort, setSort, data, setData } = props;
@@ -85,8 +88,21 @@ export default function Aside(props: { sort: any; setSort: any; data: any; setDa
 
 return (
         <div className='aside'>
-            <SearchType />
             <form onSubmit={handleSubmit} className='form'>
+                <div className="search-type">
+                    <img
+                        src={carImgUrl}
+                        alt="car"
+                        className='car-type'/>
+                    <img
+                        src={tractorImgUrl}
+                        alt="tractor"
+                        className='tractor-type'/>
+                    <img
+                        src={motoImgUrl}
+                        alt="moto"
+                        className='moto-type'/>
+                </div>
                 <div className="form-filter">
                     <div className="form-select-container">
                         <div className="form-group">

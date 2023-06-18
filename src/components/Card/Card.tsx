@@ -120,6 +120,7 @@ export default function Card(props: any) {
                         />
                         <CardFooter
                             views={item.views}
+                            order_date={item.order_date}
                         />
                     </div>
                 </>
